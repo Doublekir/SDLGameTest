@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.23)
+project(SDLGameTest)
+
+set(CMAKE_CXX_STANDARD 17)
+
+find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
+include_directories(SDL2Test ${SDL2_INCLUDE_DIRS})
+
+add_executable(SDLGameTest main.cpp BoardGame.cpp BoardGame.h)
+target_link_libraries(SDLGameTest ${SDL2_LIBRARIES} -lSDL2_image)
