@@ -39,11 +39,21 @@ class BoardGame
 
     SquareState _board[8][8] = {SquareState::EMPTY};
     Position _selectedField = {7, 7};
+    Position _draggedField = {-1, -1};
     bool _drawSelection = false;
+    bool _dragged = false;
+    SquareState _turnOrder = SquareState::WHITE_PAWN;
 
 public:
     BoardGame();
+    Position selectedField() const  { return _selectedField; }
+    Position draggedField() const { return _draggedField; }
+    //! Selected square movement (for keyboard/gamepad)
     bool moveSelected(const Position &diff);
+    //! Selected square movement (for mouse controls and drag&drop)
+    void setHovered(const Position &diff);
+    bool setDragged(const Position &pos);
+    bool makeMove(const Position &from, const Position &to);
 };
 
 
@@ -61,6 +71,7 @@ class BoardRenderer
 public:
     BoardRenderer(BoardGame *game, SDL_Renderer *renderer);
     bool render();
+    Position squareAt(const int &x, const int &y) const { return {x / 60, y / 60}; }
 };
 
 #endif //SDLGAMETEST_BOARDGAME_H

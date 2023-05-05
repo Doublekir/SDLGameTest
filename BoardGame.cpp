@@ -35,6 +35,43 @@ bool BoardGame::moveSelected(const Position &diff) {
     return false;
 }
 
+void BoardGame::setHovered(const Position &diff)
+{
+    _drawSelection = true;
+    _selectedField = diff;
+}
+
+bool BoardGame::setDragged(const Position &pos) {
+    if (!pos.valid())
+    {
+        _dragged = false;
+        return false;
+    }
+    if (_board[pos.y][pos.x] == _turnOrder)
+    {
+        _draggedField = pos;
+        _dragged = true;
+        return true;
+    }
+    return false;
+}
+
+bool BoardGame::makeMove(const Position &from, const Position &to) {
+    if (!from.valid() || !to.valid())
+        return false;
+    //! Move can only be made horizontally or vertically
+    if (abs(from.x - to.x) + abs(from.y - to.y) != 1)
+        return false;
+    if (_board[from.y][from.x] == _turnOrder && _board[to.y][to.x] == SquareState::EMPTY)
+    {
+        _board[to.y][to.x] = _board[from.y][from.x];
+        _board[from.y][from.x] = SquareState::EMPTY;
+        _turnOrder = _turnOrder == SquareState::BLACK_PAWN ? SquareState::WHITE_PAWN : SquareState::BLACK_PAWN;
+        return true;
+    }
+    return false;
+}
+
 BoardRenderer::BoardRenderer(BoardGame *game, SDL_Renderer *renderer) :
     _game(game),
     _renderer(renderer)
@@ -71,6 +108,22 @@ bool BoardRenderer::render()
     {
         SDL_Rect rect = {_game->_selectedField.x * 60, _game->_selectedField.y * 60, 60, 60};
         SDL_RenderCopy(_renderer, _active, nullptr, &rect);
+    }
+    if (_game->_dragged)
+    {
+        SDL_Rect rect = {_game->_selectedField.x * 60, _game->_selectedField.y * 60, 60, 60};
+        if (_game->_turnOrder == SquareState::WHITE_PAWN)
+        {
+            SDL_SetTextureAlphaMod(_white, 100);
+            SDL_RenderCopy(_renderer, _white, nullptr, &rect);
+            SDL_SetTextureAlphaMod(_white, 255);
+        }
+        else
+        {
+            SDL_SetTextureAlphaMod(_black, 100);
+            SDL_RenderCopy(_renderer, _black, nullptr, &rect);
+            SDL_SetTextureAlphaMod(_black, 255);
+        }
     }
     // Update screen
     SDL_RenderPresent(_renderer);

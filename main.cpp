@@ -177,10 +177,10 @@ int main( int argc, char* args[] )
                 {
                     quit = true;
                 }
-                else if( e.type == SDL_KEYDOWN )
+                else if(e.type == SDL_KEYDOWN)
                 {
                     //Select surfaces based on key press
-                    switch( e.key.keysym.sym )
+                    switch(e.key.keysym.sym)
                     {
                         case SDLK_UP:
                             game->moveSelected({0, -1});
@@ -198,6 +198,25 @@ int main( int argc, char* args[] )
                             game->moveSelected({1, 0});
                             break;
                     }
+                }
+                else if (e.type == SDL_MOUSEMOTION)
+                {
+                    int x, y;
+                    SDL_GetMouseState(&x, &y);
+                    game->setHovered(renderer->squareAt(x, y));
+                }
+                else if (e.type == SDL_MOUSEBUTTONDOWN)
+                {
+                    int x, y;
+                    SDL_GetMouseState(&x, &y);
+                    game->setDragged(renderer->squareAt(x, y));
+                }
+                else if (e.type == SDL_MOUSEBUTTONUP)
+                {
+                    int x, y;
+                    SDL_GetMouseState(&x, &y);
+                    game->makeMove(game->draggedField(), renderer->squareAt(x, y));
+                    game->setDragged({-1, -1});
                 }
             }
 
