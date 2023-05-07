@@ -8,7 +8,7 @@
 #include <SDL.h>
 #include <string>
 
-//! Possible states of a single board square
+//! Possible states of a board square
 enum class SquareState
 {
     EMPTY,
@@ -29,8 +29,13 @@ struct Position
     //! Example: pos += {1, 0} is a step to the right
     Position operator+(const Position &diff) const { return {x + diff.x, y + diff.y}; }
     void operator+=(const Position &diff) { x += diff.x; y += diff.y; }
+    //! Comparison operator for std::set
+    bool operator<(const Position &cmp) const { return x * 8 + y < cmp.x * 8 + cmp.y; }
+    //! Comparison operator for std::find
+    bool operator==(const Position &cmp) const { return x == cmp.x && y == cmp.y; }
 };
 
+using Move = std::pair<Position, Position>;
 
 //! Board game state
 class BoardGame
@@ -44,8 +49,13 @@ class BoardGame
     bool _dragged = false;
     SquareState _turnOrder = SquareState::WHITE_PAWN;
 
+    bool isGameOverWhite() const;
+    bool isGameOverBlack() const;
 public:
+
     BoardGame();
+    void resetGame();
+    SquareState at(const Position &pos) const { return _board[pos.x][pos.y]; }
     Position selectedField() const  { return _selectedField; }
     Position draggedField() const { return _draggedField; }
     //! Selected square movement (for keyboard/gamepad)
@@ -53,7 +63,7 @@ public:
     //! Selected square movement (for mouse controls and drag&drop)
     void setHovered(const Position &diff);
     bool setDragged(const Position &pos);
-    bool makeMove(const Position &from, const Position &to);
+    bool makeMove(const Move &move);
 };
 
 
@@ -62,7 +72,7 @@ class BoardRenderer
 {
     BoardGame *_game; // initialized in constructor
     SDL_Renderer *_renderer; // initialized in constructor
-    SDL_Texture* _board = nullptr;
+    SDL_Texture* _boardTexture = nullptr;
     SDL_Texture* _white = nullptr;
     SDL_Texture* _black = nullptr;
     SDL_Texture* _active = nullptr;
@@ -70,7 +80,7 @@ class BoardRenderer
     SDL_Texture* loadTexture( std::string path );
 public:
     BoardRenderer(BoardGame *game, SDL_Renderer *renderer);
-    bool render();
+    void render();
     Position squareAt(const int &x, const int &y) const { return {x / 60, y / 60}; }
 };
 

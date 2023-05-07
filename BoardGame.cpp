@@ -7,18 +7,7 @@
 
 BoardGame::BoardGame()
 {
-    for (int i = 0; i < 8; ++i)
-    {
-        for (int j = 0; j < 8; ++j)
-        {
-            if (i < 3 && j < 3)
-                _board[i][j] = SquareState::BLACK_PAWN;
-            else if (i > 4 && j > 4)
-                _board[i][j] = SquareState::WHITE_PAWN;
-            else
-                _board[i][j] = SquareState::EMPTY;
-        }
-    }
+    resetGame();
 }
 
 bool BoardGame::moveSelected(const Position &diff) {
@@ -47,7 +36,7 @@ bool BoardGame::setDragged(const Position &pos) {
         _dragged = false;
         return false;
     }
-    if (_board[pos.y][pos.x] == _turnOrder)
+    if (_board[pos.x][pos.y] == _turnOrder)
     {
         _draggedField = pos;
         _dragged = true;
@@ -56,43 +45,89 @@ bool BoardGame::setDragged(const Position &pos) {
     return false;
 }
 
-bool BoardGame::makeMove(const Position &from, const Position &to) {
+bool BoardGame::makeMove(const Move &move) {
+    auto from = move.first, to = move.second;
     if (!from.valid() || !to.valid())
         return false;
-    //! Move can only be made horizontally or vertically
+    //! Move can only be made 1 step at a time horizontally or vertically
     if (abs(from.x - to.x) + abs(from.y - to.y) != 1)
         return false;
-    if (_board[from.y][from.x] == _turnOrder && _board[to.y][to.x] == SquareState::EMPTY)
+    if (_board[from.x][from.y] == _turnOrder && _board[to.x][to.y] == SquareState::EMPTY)
     {
-        _board[to.y][to.x] = _board[from.y][from.x];
-        _board[from.y][from.x] = SquareState::EMPTY;
+        _board[to.x][to.y] = _board[from.x][from.y];
+        _board[from.x][from.y] = SquareState::EMPTY;
         _turnOrder = _turnOrder == SquareState::BLACK_PAWN ? SquareState::WHITE_PAWN : SquareState::BLACK_PAWN;
         return true;
     }
     return false;
 }
 
+bool BoardGame::isGameOverWhite() const
+{
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            if (_board[i][j] != SquareState::WHITE_PAWN)
+                return false;
+        }
+    }
+    return true;
+}
+
+bool BoardGame::isGameOverBlack() const
+{
+    for (int i = 5; i < 8; ++i)
+    {
+        for (int j = 5; j < 8; ++j)
+        {
+            if (_board[i][j] != SquareState::BLACK_PAWN)
+                return false;
+        }
+    }
+    return true;
+}
+
+void BoardGame::resetGame() {
+    for (int i = 0; i < 8; ++i)
+    {
+        for (int j = 0; j < 8; ++j)
+        {
+            if (i < 3 && j < 3)
+                _board[i][j] = SquareState::BLACK_PAWN;
+            else if (i > 4 && j > 4)
+                _board[i][j] = SquareState::WHITE_PAWN;
+            else
+                _board[i][j] = SquareState::EMPTY;
+        }
+    }
+    _turnOrder = SquareState::WHITE_PAWN;
+    _draggedField = {-1, -1};
+    _drawSelection = false;
+    _dragged = false;
+}
+
 BoardRenderer::BoardRenderer(BoardGame *game, SDL_Renderer *renderer) :
     _game(game),
     _renderer(renderer)
 {
-    _board = loadTexture("chessboard.png");
+    _boardTexture = loadTexture("chessboard.png");
     _black = loadTexture("blackpawn.png");
     _white = loadTexture("whitepawn.png");
     _active = loadTexture("border.png");
 }
 
-bool BoardRenderer::render()
+void BoardRenderer::render()
 {
     SDL_RenderClear(_renderer);
     // Render board texture to screen
-    SDL_RenderCopy(_renderer, _board, nullptr, nullptr);
+    SDL_RenderCopy(_renderer, _boardTexture, nullptr, nullptr);
     // Render pieces
     for (int i = 0; i < 8; ++i)
     {
         for (int j = 0; j < 8; ++j)
         {
-            SDL_Rect rect = {j * 60, i * 60, 60, 60};
+            SDL_Rect rect = {i * 60, j * 60, 60, 60};
             switch(_game->_board[i][j])
             {
                 case SquareState::BLACK_PAWN:

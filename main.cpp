@@ -8,6 +8,7 @@ and may not be redistributed without written permission.*/
 #include <memory>
 
 #include "BoardGame.h"
+#include "BoardGameAI.h"
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 480;
@@ -159,6 +160,7 @@ int main( int argc, char* args[] )
     {
         std::shared_ptr<BoardGame> game(new BoardGame);
         std::shared_ptr<BoardRenderer> renderer(new BoardRenderer(game.get(), gRenderer));
+        std::shared_ptr<BoardGameAI> ai(new BoardGameAI(game.get()));
 
         //Main loop flag
         bool quit = false;
@@ -197,6 +199,41 @@ int main( int argc, char* args[] )
                         case SDLK_RIGHT:
                             game->moveSelected({1, 0});
                             break;
+
+                        case SDLK_w:
+                            if (game->makeMove({game->selectedField(), game->selectedField() + Position({0, -1})}))
+                            {
+                                game->moveSelected({0, -1});
+                                ai->act();
+                            }
+                            break;
+
+                        case SDLK_s:
+                            if (game->makeMove({game->selectedField(), game->selectedField() + Position({0, 1})}))
+                            {
+                                game->moveSelected({0, 1});
+                                ai->act();
+                            }
+                            break;
+
+                        case SDLK_a:
+                            if (game->makeMove({game->selectedField(), game->selectedField() + Position({-1, 0})}))
+                            {
+                                game->moveSelected({-1, 0});
+                                ai->act();
+                            }
+                            break;
+
+                        case SDLK_d:
+                            if (game->makeMove({game->selectedField(), game->selectedField() + Position({1, 0})}))
+                            {
+                                game->moveSelected({1, 0});
+                                ai->act();
+                            }
+                            break;
+                        case SDLK_r:
+                            game->resetGame();
+                            break;
                     }
                 }
                 else if (e.type == SDL_MOUSEMOTION)
@@ -215,7 +252,10 @@ int main( int argc, char* args[] )
                 {
                     int x, y;
                     SDL_GetMouseState(&x, &y);
-                    game->makeMove(game->draggedField(), renderer->squareAt(x, y));
+                    if (game->makeMove({game->draggedField(), renderer->squareAt(x, y)}))
+                    {
+                        ai->act();
+                    }
                     game->setDragged({-1, -1});
                 }
             }
