@@ -15,6 +15,8 @@ class BoardGameAI {
     BoardGame *_game;
     //! List of destination squares in order of priority
     std::vector<Position> _destPriority;
+    //! List of start squares in order of leave priority
+    std::vector<Position> _leavePriority;
 
     //! Board search configurations
     enum class SearchMode
@@ -24,7 +26,7 @@ class BoardGameAI {
         PAWN_CAN_MOVE, //! Search for black pawns that can move down or to the right
         IGNORE_WHITE //! Search for black pawns, skipping white ones
     };
-    //! Breadth-first search uses queue and depth-first uses stack
+    //! Breadth-first search uses queue and depth-first would use stack
     template<class Container>
     std::pair<Move, std::set<Position> > search(const Position &src, SearchMode mode) const;
 
@@ -34,6 +36,7 @@ class BoardGameAI {
     {
         return search<std::queue<Position> >(src, mode);
     }
+    bool isLegal(const Move &move) const;
     Move getNextMove();
 public:
     explicit BoardGameAI(BoardGame *game);

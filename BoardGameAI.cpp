@@ -8,7 +8,8 @@
 
 BoardGameAI::BoardGameAI(BoardGame *game) :
     _game(game),
-    _destPriority{{7,7},{6,7},{7,6},{5,7},{6,6},{7,5},{5,6},{6,5},{5,5}}
+    _destPriority{{7,7},{6,7},{7,6},{5,7},{6,6},{7,5},{5,6},{6,5},{5,5}},
+    _leavePriority{{0,0},{1,0},{0,1},{2,0},{1,1},{0,2},{2,1},{1,2},{2,2}}
 {
 
 }
@@ -115,7 +116,22 @@ std::pair<Move, std::set<Position> > BoardGameAI::search(const Position &src, Se
 }
 
 Move BoardGameAI::getNextMove() {
-    //! Find black pawn closest to upper left square
+    // Try to leave start area first
+    for (auto pos : _leavePriority)
+    {
+        if(_game->at(pos) == SquareState::BLACK_PAWN)
+        {
+            auto right = pos + Position{1, 0};
+            if (right.valid() && _game->at(right) == SquareState::EMPTY)
+                return {pos, right};
+            auto down = pos + Position{0, 1};
+            if (down.valid() && _game->at(down) == SquareState::EMPTY) {
+                return {pos, down};
+            }
+        }
+    }
+
+    // Find black pawn closest to upper left square
     Move reserve = breadthFirstSearch({0, 0}, SearchMode::IGNORE_WHITE).first;
     std::set<Position> accessible = breadthFirstSearch({-1, -1}, SearchMode::ACCESSIBLE).second;
     Position prioritized = {-1, -1};
@@ -134,10 +150,44 @@ Move BoardGameAI::getNextMove() {
     }
     if (prioritized.valid())
     {
-        return breadthFirstSearch(prioritized, SearchMode::NEXT_MOVE).first;
+        auto move = breadthFirstSearch(prioritized, SearchMode::NEXT_MOVE).first;
+        if (isLegal(move))
+            return move;
     }
-    else
+    if (isLegal(reserve))
     {
         return reserve;
     }
+    else
+    // Stall the game making any legal moves
+    {
+        for (int i = 0; i < 8; ++i)
+        {
+            for (int j = 0; j < 8; ++j)
+            {
+                Position pos{i, j};
+                if (_game->at(pos) == SquareState::BLACK_PAWN)
+                {
+                    auto down = pos + Position{0, 1};
+                    if (down.valid() && _game->at(down) == SquareState::EMPTY)
+                        return {pos, down};
+                    auto right = pos + Position{1, 0};
+                    if (right.valid() && _game->at(right) == SquareState::EMPTY)
+                        return {pos, right};
+                    // If pawn can step at all, it is reserved and the search continues
+                    auto up = pos + Position{0, -1};
+                    if (up.valid() && _game->at(up) == SquareState::EMPTY)
+                        return {pos, up};
+                    auto left = pos + Position{-1, 0};
+                    if (left.valid() && _game->at(left) == SquareState::EMPTY)
+                        return {pos, left};
+                }
+            }
+        }
+    }
+}
+
+bool BoardGameAI::isLegal(const Move &move) const
+{
+    return _game->at(move.first) == SquareState::BLACK_PAWN && _game->at(move.second) == SquareState::EMPTY;
 }
