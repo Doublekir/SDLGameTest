@@ -27,7 +27,7 @@ forcing player to leave that area sooner.
 
 
 ## Build
-For Linux:
+### For Linux:
 
 `# apt-get install libsdl2-dev libsdl2-image-dev` (for Debian-based systems,
 [more](https://lazyfoo.net/tutorials/SDL/01_hello_SDL/linux/index.php)
@@ -38,3 +38,18 @@ $ cd build
 $ cmake ..
 $ make
 ```
+
+### For Windows:
+Tested with Build Tools for Visual Studio. Built version is attached to the repository tag.
+
+* Download [SDL2](https://github.com/libsdl-org/SDL) and [SDL2_image](https://github.com/libsdl-org/SDL_image)
+* Run cmake with flags
+```
+-DSDL2_DIR=<path/to/SDL2/cmake> -DSDL2_IMAGE_DIR=<path/to/SDL2_image/cmake>
+```
+* Compile project
+
+
+* Add <SDL2_dir>/lib/x86 <SDL2_image_dir>/lib/x86 (or x64) and to PATH environment variable
+* OR
+* add either x86 or x64 SDL2.dll and SDL2_image.dll to build directory (easier)
