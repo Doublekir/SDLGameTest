@@ -81,7 +81,7 @@ class BoardRenderer
 public:
     BoardRenderer(BoardGame *game, SDL_Renderer *renderer);
     void render();
-    Position squareAt(const int &x, const int &y) const { return {x / 60, y / 60}; }
+    Position squareAt(const int &x, const int &y) const;
 };
 
 #endif //SDLGAMETEST_BOARDGAME_H

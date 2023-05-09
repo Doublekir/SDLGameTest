@@ -122,12 +122,18 @@ void BoardRenderer::render()
     SDL_RenderClear(_renderer);
     // Render board texture to screen
     SDL_RenderCopy(_renderer, _boardTexture, nullptr, nullptr);
+    // Get window width and height
+    int w, h;
+    SDL_GetRendererOutputSize(_renderer, &w, &h);
+    // float square sizes to avoid multiplication error
+    double sw = w * 0.125, sh = h * 0.125;
+
     // Render pieces
     for (int i = 0; i < 8; ++i)
     {
         for (int j = 0; j < 8; ++j)
         {
-            SDL_Rect rect = {i * 60, j * 60, 60, 60};
+            SDL_Rect rect = SDL_Rect {(int)(sw * i), (int)(sh * j), (int)sw, (int)sh};
             switch(_game->_board[i][j])
             {
                 case SquareState::BLACK_PAWN:
@@ -141,12 +147,12 @@ void BoardRenderer::render()
     }
     if (_game->_drawSelection)
     {
-        SDL_Rect rect = {_game->_selectedField.x * 60, _game->_selectedField.y * 60, 60, 60};
+        SDL_Rect rect = {(int)(_game->_selectedField.x * sw), (int)(_game->_selectedField.y * sh), (int)sw, (int)sh};
         SDL_RenderCopy(_renderer, _active, nullptr, &rect);
     }
     if (_game->_dragged)
     {
-        SDL_Rect rect = {_game->_selectedField.x * 60, _game->_selectedField.y * 60, 60, 60};
+        SDL_Rect rect = {(int)(_game->_selectedField.x * sw), (int)(_game->_selectedField.y * sh), (int)sw, (int)sh};
         if (_game->_turnOrder == SquareState::WHITE_PAWN)
         {
             SDL_SetTextureAlphaMod(_white, 100);
@@ -189,4 +195,13 @@ SDL_Texture *BoardRenderer::loadTexture(std::string path)
     }
 
     return newTexture;
+}
+
+Position BoardRenderer::squareAt(const int &x, const int &y) const
+{
+    int w, h;
+    SDL_GetRendererOutputSize(_renderer, &w, &h);
+    // float square sizes to avoid multiplication error
+    double sw = w * 0.125, sh = h * 0.125;
+    return {(int)(x / sw), (int)(y / sh)};
 }

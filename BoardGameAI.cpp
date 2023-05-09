@@ -158,7 +158,6 @@ Move BoardGameAI::getNextMove() {
     {
         return reserve;
     }
-    else
     // Stall the game making any legal moves
     {
         for (int i = 0; i < 8; ++i)
@@ -185,6 +184,8 @@ Move BoardGameAI::getNextMove() {
             }
         }
     }
+    // No legal turns, return invalid value to suppress warnings
+    return reserve;
 }
 
 bool BoardGameAI::isLegal(const Move &move) const
