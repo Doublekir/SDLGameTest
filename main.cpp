@@ -1,7 +1,3 @@
-/*This source code copyrighted by Lazy Foo' Productions (2004-2022)
-and may not be redistributed without written permission.*/
-
-//Using SDL, SDL_image, standard IO, and strings
 #include <SDL.h>
 #include <SDL_image.h>
 #include <cstdio>
@@ -17,23 +13,13 @@ const int SCREEN_HEIGHT = 480;
 //Starts up SDL and creates window
 bool init();
 
-//Loads media
-bool loadMedia();
-
 //Frees media and shuts down SDL
 void close();
 
-//Loads individual image as texture
-SDL_Texture* loadTexture( std::string path );
-
 //The window we'll be rendering to
 SDL_Window* gWindow = nullptr;
-
 //The window renderer
 SDL_Renderer* gRenderer = nullptr;
-
-//Current displayed texture
-SDL_Texture* gTexture = nullptr;
 
 bool init()
 {
@@ -89,28 +75,8 @@ bool init()
     return success;
 }
 
-bool loadMedia()
-{
-    //Loading success flag
-    bool success = true;
-
-    //Load PNG texture
-    gTexture = loadTexture( "chessboard.png" );
-    if( gTexture == nullptr )
-    {
-        printf( "Failed to load texture image!\n" );
-        success = false;
-    }
-
-    return success;
-}
-
 void close()
 {
-    //Free loaded image
-    SDL_DestroyTexture( gTexture );
-    gTexture = nullptr;
-
     //Destroy window
     SDL_DestroyRenderer( gRenderer );
     SDL_DestroyWindow( gWindow );
@@ -120,33 +86,6 @@ void close()
     //Quit SDL subsystems
     IMG_Quit();
     SDL_Quit();
-}
-
-SDL_Texture* loadTexture( std::string path )
-{
-    //The final texture
-    SDL_Texture* newTexture = nullptr;
-
-    //Load image at specified path
-    SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
-    if( loadedSurface == nullptr )
-    {
-        printf( "Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError() );
-    }
-    else
-    {
-        //Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
-        if( newTexture == nullptr )
-        {
-            printf( "Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
-        }
-
-        //Get rid of old loaded surface
-        SDL_FreeSurface( loadedSurface );
-    }
-
-    return newTexture;
 }
 
 int main( int argc, char* args[] )

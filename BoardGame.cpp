@@ -56,7 +56,11 @@ bool BoardGame::makeMove(const Move &move) {
     {
         _board[to.x][to.y] = _board[from.x][from.y];
         _board[from.x][from.y] = SquareState::EMPTY;
-        _turnOrder = _turnOrder == SquareState::BLACK_PAWN ? SquareState::WHITE_PAWN : SquareState::BLACK_PAWN;
+        bool over = _turnOrder == SquareState::BLACK_PAWN ? isGameOverBlack() : isGameOverWhite();
+        if (over)
+            resetGame();
+        else
+            _turnOrder = _turnOrder == SquareState::BLACK_PAWN ? SquareState::WHITE_PAWN : SquareState::BLACK_PAWN;
         return true;
     }
     return false;
