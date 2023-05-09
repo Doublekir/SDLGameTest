@@ -7,7 +7,7 @@ find_package(SDL2 REQUIRED)
 find_package(SDL2_IMAGE REQUIRED)
 include_directories(SDL2Test ${SDL2_INCLUDE_DIRS} ${_sdl2image_incdir})
 
-add_executable(SDLGameTest WIN32 main.cpp BoardGame.cpp BoardGame.h BoardGameAI.cpp BoardGameAI.h)
+add_executable(SDLGameTest main.cpp BoardGame.cpp BoardGame.h BoardGameAI.cpp BoardGameAI.h)
 target_link_libraries(SDLGameTest ${SDL2_LIBRARIES} SDL2_image::SDL2_image)
 configure_file(chessboard.png chessboard.png COPYONLY)
 configure_file(whitepawn.png whitepawn.png COPYONLY)

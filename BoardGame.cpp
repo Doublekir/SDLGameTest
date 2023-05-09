@@ -49,7 +49,7 @@ bool BoardGame::makeMove(const Move &move) {
     auto from = move.first, to = move.second;
     if (!from.valid() || !to.valid())
         return false;
-    //! Move can only be made 1 step at a time horizontally or vertically
+    // Move can only be made 1 step at a time horizontally or vertically
     if (abs(from.x - to.x) + abs(from.y - to.y) != 1)
         return false;
     if (_board[from.x][from.y] == _turnOrder && _board[to.x][to.y] == SquareState::EMPTY)

@@ -133,6 +133,8 @@ Move BoardGameAI::getNextMove() {
 
     // Find black pawn closest to upper left square
     Move reserve = breadthFirstSearch({0, 0}, SearchMode::IGNORE_WHITE).first;
+
+    // Find best move in order of target priority
     std::set<Position> accessible = breadthFirstSearch({-1, -1}, SearchMode::ACCESSIBLE).second;
     Position prioritized = {-1, -1};
     for (auto pos : _destPriority)
